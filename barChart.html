@@ -1,0 +1,175 @@
+<!DOCTYPE HTML>
+<html lang="eng">
+<head>
+	<meta charset="utf-8">
+	<title>D3 Bar Chart</title>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+
+<style>
+	#dataEntry{
+		border: 2px solid #66b3ff;
+		padding: 20px;
+		color: #66b3ff;
+		overflow-x: auto;
+	}
+	button{
+		text-decoration: none;
+		color: white;
+		background-color: #66b3ff;
+		border: 1px solid white;
+		padding: 10px;
+		cursor: pointer;
+	}
+	input{
+		width: 100%;
+		border: 1px solid #66b3ff;
+		padding: 5px 0px;
+		color: grey;
+		margin: 5px 0px;
+	}
+</style>
+
+</head>
+<body>
+	<div id="dataEntry">
+	<h2>Design a Bar Chart</h2>
+	<h4>Specify Parameters:</h4>
+	<input id="title" type="text" placeholder="Enter graph title.." /><br>
+	<input id="numOfInputs" type="text" placeholder="Enter the number of records.." /><br>
+	<div id="inputList"></div>
+      <br>
+	<div id="errorMsg"></div><br>
+	<button id="setInputNum" type="button">Next</button>
+	<br>
+
+	</div>
+
+	<script>
+
+		jQuery(document.body).on('click', '#drawGraph', 			function(event){
+			var dataset = [];
+			var inputNum = $("#numOfInputs").val();
+
+			for (var i=0; i<inputNum; i++){
+				var input = $("#record" + i ).val();
+				if(validateNumber(input, 0)){
+					dataset.push(input);
+				} else{
+					break;
+				};
+			};
+			var percentages = getPercentages(dataset);
+			drawGraph(dataset, percentages);			
+		});
+
+		/** Convert dataset values into percentages for scaling bars*/
+
+		function getPercentages(dataset){
+			var percentages = [];
+			var sum = 0;
+			
+			for (var i=0; i<dataset.length; i++){
+				sum += Number(dataset[i]);
+			}
+			for (var i=0; i<dataset.length; i++){
+				var percent = ( dataset[i]/sum )*100;
+				percentages.push( percent );
+			}
+			return percentages;
+		}
+
+		
+		$("#setInputNum").click(function(){
+			var inputNum = $("#numOfInputs").val();
+			if(validateNumber(inputNum, 1)){
+				$("#title").hide();
+				$("#numOfInputs").hide();
+				$("#setInputNum").hide();
+				showInputBoxes();
+			};
+		});
+
+		function showInputBoxes(){
+			var inputNum = $("#numOfInputs").val();
+
+			for (var i=0; i<inputNum; i++){
+				$("#inputList").append("<input id='record" + i + "' type='text' placeholder='Enter record " + (i+1) + "..'><br>");
+			};
+			$("#dataEntry").append("<button id='drawGraph' type='button'>Draw Graph</button>");
+			
+		};
+
+		function validateNumber(input, min){
+			var result;
+			
+			if (isNaN(input) || input < min){
+				$("#errorMsg").html("Invalid input, please use positive integers");	
+				return false;
+			} 
+			$("#errorMsg").empty();
+			return true;
+
+		};
+
+		function drawGraph(rawData, dataset){
+
+		var title = $("#title").val();
+		$("#dataEntry").empty();
+		$("#dataEntry").append("<h2>" + title + "</h2><br>");
+
+		/** Declare the size of the new SVG*/
+		
+		var scale = 5;
+		var width = dataset.length * 30;
+		var height = Math.max.apply(Math, dataset) * scale;
+		var barPadding = 4;
+	
+		var svg = d3.select("#dataEntry")
+			.append("svg")
+			.attr("width", width)
+			.attr("height", height);
+
+		/** Generate rectangles for bars and add them to 		svg*/
+
+		svg.selectAll("rect")
+			.data(dataset)
+			.enter()
+			.append("rect")
+			.attr("x", function(d, i){
+				return i * (width / dataset.length);
+			})
+			.attr("y", function(d){
+				return height - d * scale;  
+			})
+			.attr("width", width / dataset.length - 					barPadding)
+			.attr("height", function(d){
+				return d * scale; 		
+			})
+			.attr("fill", "#66b3ff");
+		
+		/**TODO: Add Bar Labels &/or axes*/
+
+
+		svg.selectAll("text")
+			.data(rawData)
+			.enter()
+			.append("text")
+			.text(function(d){
+				return d;
+			})
+			.style("text-anchor", "middle")
+			.attr("x", function(d, i){
+				return i * (width / dataset.length) + (width / (2 * dataset.length) - (barPadding));
+			})
+			.attr("y", height - 15)
+			.attr("font-family", "sans-serif")
+			.attr("fill", "#737373")
+			.attr("font-size", 12);
+
+}
+
+
+	</script>
+</body>
+</html>
