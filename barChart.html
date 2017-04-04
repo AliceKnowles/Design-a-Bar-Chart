@@ -47,6 +47,8 @@
 
 	<script>
 
+		/**Draw graph event handler*/
+
 		jQuery(document.body).on('click', '#drawGraph', 			function(event){
 			var dataset = [];
 			var inputNum = $("#numOfInputs").val();
@@ -79,7 +81,8 @@
 			return percentages;
 		}
 
-		
+		/**1st -> 2nd input page event handler*/		
+
 		$("#setInputNum").click(function(){
 			var inputNum = $("#numOfInputs").val();
 			if(validateNumber(inputNum, 1)){
@@ -90,6 +93,8 @@
 			};
 		});
 
+		/**Handles the elements on the 2nd input page*/
+
 		function showInputBoxes(){
 			var inputNum = $("#numOfInputs").val();
 
@@ -99,6 +104,8 @@
 			$("#dataEntry").append("<button id='drawGraph' type='button'>Draw Graph</button>");
 			
 		};
+
+		/**Validates that the input is a positive integer*/
 
 		function validateNumber(input, min){
 			var result;
@@ -112,62 +119,64 @@
 
 		};
 
+		/**Sketches the graph using SVG as per input parameters*/
+
 		function drawGraph(rawData, dataset){
 
-		var title = $("#title").val();
-		$("#dataEntry").empty();
-		$("#dataEntry").append("<h2>" + title + "</h2><br>");
+			var title = $("#title").val();
+			$("#dataEntry").empty();
+			$("#dataEntry").append("<h2>" + title + "</h2><br>");
 
-		/** Declare the size of the new SVG*/
+			/** Declare the size of the new SVG*/
 		
-		var scale = 5;
-		var width = dataset.length * 30;
-		var height = Math.max.apply(Math, dataset) * scale;
-		var barPadding = 4;
+			var scale = 5;
+			var width = dataset.length * 30;
+			var height = Math.max.apply(Math, dataset) * scale;
+			var barPadding = 4;
 	
-		var svg = d3.select("#dataEntry")
-			.append("svg")
-			.attr("width", width)
-			.attr("height", height);
+			var svg = d3.select("#dataEntry")
+				.append("svg")
+				.attr("width", width)
+				.attr("height", height);
 
-		/** Generate rectangles for bars and add them to 		svg*/
+			/** Generate rectangles for bars and add them to 		svg*/
 
-		svg.selectAll("rect")
-			.data(dataset)
-			.enter()
-			.append("rect")
-			.attr("x", function(d, i){
-				return i * (width / dataset.length);
-			})
-			.attr("y", function(d){
-				return height - d * scale;  
-			})
-			.attr("width", width / dataset.length - 					barPadding)
-			.attr("height", function(d){
-				return d * scale; 		
-			})
-			.attr("fill", "#66b3ff");
+			svg.selectAll("rect")
+				.data(dataset)
+				.enter()
+				.append("rect")
+				.attr("x", function(d, i){
+					return i * (width / dataset.length);
+				})
+				.attr("y", function(d){
+					return height - d * scale;  
+				})
+				.attr("width", width / dataset.length - 					barPadding)
+				.attr("height", function(d){
+					return d * scale; 		
+				})
+				.attr("fill", "#66b3ff");
 		
-		/**TODO: Add Bar Labels &/or axes*/
+			/**Add bar value labels*/
 
 
-		svg.selectAll("text")
-			.data(rawData)
-			.enter()
-			.append("text")
-			.text(function(d){
-				return d;
+			svg.selectAll("text")
+				.data(rawData)
+				.enter()
+				.append("text")
+				.text(function(d){
+					return d;
+				})
+				.style("text-anchor", "middle")
+				.attr("x", function(d, i){
+					return i * (width / dataset.length) + (width / (2 * dataset.length) - (barPadding));
 			})
-			.style("text-anchor", "middle")
-			.attr("x", function(d, i){
-				return i * (width / dataset.length) + (width / (2 * dataset.length) - (barPadding));
-			})
-			.attr("y", height - 15)
-			.attr("font-family", "sans-serif")
-			.attr("fill", "#737373")
-			.attr("font-size", 12);
+				.attr("y", height - 15)
+				.attr("font-family", "sans-serif")
+				.attr("fill", "#737373")
+				.attr("font-size", 12);
 
-}
+		};
 
 
 	</script>
